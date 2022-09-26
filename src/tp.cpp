@@ -7,7 +7,8 @@
 int main()
 {
 	const uint16_t vendor_id = 0x17EF;
-	const uint16_t product_ids[] = {0x6048, 0x60E1};
+	// const uint16_t product_ids[] = {0x6048, 0x60E1};
+	const uint16_t product_ids[] = {0x60EE};
 
 	if (hid_init()) {
 		return -1;
@@ -43,6 +44,30 @@ int main()
 
 	unsigned char buf[4];
 
+  // https://github.com/torvalds/linux/blob/master/drivers/hid/hid-lenovo.c
+  // https://github.com/lentinj/tp-compact-keyboard/blob/master/tp-compact-bt-keyboard/tp-compact-keyboard
+  // https://github.com/lentinj/tp-compact-keyboard/blob/master/tp-compact-usb-keyboard/tp-compact-usb-keyboard.c
+
+	// sensitivity
+	// 13 02 xx   # xx Sensitivity, 00-FF
+	buf[0] = 0x13;
+	buf[1] = 0x02;
+	buf[2] = 0x06;
+  hid_send_feature_report(dev, buf, 3);
+
+	// Enable middle button
+	// buf[0] = 0x13;
+	// buf[1] = 0x09;
+	// buf[2] = 0x01;
+	// hid_send_feature_report(dev, buf, 3);
+
+	// Disable Fn Lock
+	buf[0] = 0x13;
+	buf[1] = 0x05;
+	buf[2] = 0x00;
+	hid_send_feature_report(dev, buf, 3);
+
+  /*
 	// sensitivity
 	// 18 02 xx   # xx Sensitivity, 00-FF
 	buf[0] = 0x18;
@@ -55,7 +80,9 @@ int main()
 	buf[1] = 0x09;
 	buf[2] = 0x01;
 	hid_write(dev, buf, 3);
+  */
 
 	hid_close(dev);
+  hid_exit();
 	return 0;
 }
